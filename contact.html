@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — ImmoChezSoi</title>
+
+  <!-- Polices + thème -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme-junot.css">
+
+  <!-- Styles spécifiques à la page contact -->
+  <style>
+    .contact-hero{
+      position:relative; height:42vh; min-height:320px; display:grid;
+    }
+    .contact-hero .hero-media{
+      position:absolute; inset:0;
+      background-image:url('https://images.unsplash.com/photo-1523217582562-09d0def993a6?q=80&w=2100&auto=format&fit=crop');
+      background-size:cover; background-position:center;
+      filter:contrast(1) saturate(1.05);
+    }
+    .contact-hero .hero-overlay{
+      align-self:end; margin:0 auto 24px; width:min(1120px,94%);
+      color:#fff; text-shadow:0 8px 28px rgba(0,0,0,.4);
+    }
+    .contact-hero h1{
+      font-family:'Playfair Display', serif; font-weight:600; font-size:42px; margin:0 0 6px;
+    }
+    .crumbs{opacity:.9}
+
+    .contact-wrap{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:24px;
+      width:min(1120px,94%); margin:28px auto 64px;
+    }
+    .panel{
+      background:#fff; border-radius:16px; box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .panel h2{
+      font-family:'Playfair Display', serif; margin:6px 0 12px; font-size:24px;
+    }
+
+    /* Formulaire */
+    .contact-form label{display:block; font-weight:600; margin:10px 0 6px}
+    .contact-form input[type="text"],
+    .contact-form input[type="email"],
+    .contact-form textarea{
+      width:100%; border:1px solid #ddd; border-radius:10px; padding:12px; font-size:16px;
+      outline:0; background:#fff;
+    }
+    .contact-form textarea{resize:vertical}
+    .contact-form .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .contact-form .cta{margin-top:12px}
+    .form-note{color:var(--muted); font-size:14px}
+
+    /* Infos agence */
+    .info-list{list-style:none; padding:0; margin:0}
+    .info-list li{padding:8px 0; border-bottom:1px solid #f0f0f0}
+    .info-list small{color:var(--muted)}
+
+    /* Carte */
+    #map-contact{height:340px; border-radius:12px; overflow:hidden}
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .contact-wrap{grid-template-columns:1fr; gap:18px}
+    }
+  </style>
+
+  <!-- Leaflet (carte agence) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tG2G2zFE8D1J9x4x0h38=" crossorigin=""/>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <button class="menu-btn" aria-label="Ouvrir le menu">☰</button>
+    <a class="brand" href="index.html">ImmoChezSoi</a>
+    <nav class="nav-links">
+      <a href="index.html">Acheter</a>
+      <a href="index.html">Louer</a>
+      <a href="contact.html" aria-current="page">Contact</a>
+      <a href="connexion.html">Connexion</a>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="contact-hero" role="banner" aria-label="Contactez notre agence">
+    <div class="hero-media"></div>
+    <div class="hero-overlay">
+      <div class="crumbs">Accueil · Contact</div>
+      <h1>Contactez-nous</h1>
+      <p>Un projet à Abidjan ? Parlons-en.</p>
+    </div>
+  </section>
+
+  <!-- Corps -->
+  <main class="contact-wrap">
+    <!-- Colonne gauche : formulaire -->
+    <section class="panel" aria-label="Formulaire de contact">
+      <h2>Écrivez-nous</h2>
+      <p class="form-note">Les champs marqués d’un * sont obligatoires.</p>
+
+      <form action="contactMail.php" method="POST" class="contact-form" id="contact-form" novalidate>
+        <!-- Honeypot anti-spam -->
+        <input type="text" name="company" style="display:none" tabindex="-1" autocomplete="off">
+
+        <div class="row">
+          <div>
+            <label for="name">Nom complet *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div>
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+        </div>
+
+        <label for="phone">Téléphone</label>
+        <input type="text" id="phone" name="phone" placeholder="+225 ...">
+
+        <label for="message">Votre message *</label>
+        <textarea id="message" name="message" rows="6" required placeholder="Décrivez votre projet, votre bien recherché, votre quartier de prédilection…"></textarea>
+
+        <button type="submit" class="cta">Envoyer</button>
+        <p id="form-status" class="form-note" role="status" aria-live="polite"></p>
+
+        <noscript>
+          <p class="form-note">JavaScript est désactivé : l’envoi se fera par rechargement de page.</p>
+        </noscript>
+      </form>
+    </section>
+
+    <!-- Colonne droite : infos & carte -->
+    <aside class="panel" aria-label="Informations agence">
+      <h2>Notre agence</h2>
+      <ul class="info-list">
+        <li><strong>Adresse</strong><br><small>Abidjan, 2 Plateaux Angré les Oscars</small></li>
+        <li><strong>Téléphone</strong><br><small>+225 07 67 32 14 12</small><br><small>+225 27 22 29 61 04</small><br></li>
+        <li><strong>Email</strong><br><small>contact@immochezsoi.com</small></li>
+        <li><strong>Horaires</strong><br><small>Lun–Ven 9h-18h · Sam 10h-14h</small></li>
+      </ul>
+
+      <div style="margin-top:14px;">
+        <div class="map-wrapper">
+          <div id="map-contact" aria-label="Carte de l'agence"></div>
+      
+          <!-- Overlay cliquable (toute la carte) -->
+          <a
+            class="map-overlay"
+            href="https://www.google.com/maps?q=2+Plateaux+Angr%C3%A9+les+Oscars,+Abidjan"
+            target="_blank" rel="noopener noreferrer"
+            aria-label="Ouvrir dans Google Maps">
+          </a>
+        </div>
+      </div>      
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>© 2025 ImmoChezSoi — Abidjan | <a href="index.html">Accueil</a></p>
+  </footer>
+
+  <!-- Leaflet JS + carte agence -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    // Init carte simple centrée Abidjan
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const map = L.map('map-contact').setView([5.345317, -4.024429], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19, attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+        L.marker([5.345317, -4.024429]).addTo(map)
+          .bindPopup('<strong>ImmoChezSoi</strong><br/>Abidjan, Côte d’Ivoire');
+      } catch(e) {
+        console.warn('Carte non disponible :', e);
+      }
+    });
+
+    // Envoi progressif du formulaire (fetch) + fallback HTML natif
+    (function(){
+      const form = document.getElementById('contact-form');
+      const status = document.getElementById('form-status');
+      if (!form) return;
+
+      form.addEventListener('submit', async (e) => {
+        // Si JS actif → empêcher le submit classique
+        e.preventDefault();
+
+        status.textContent = 'Envoi en cours…';
+        const fd = new FormData(form);
+
+        try {
+          const res = await fetch(form.action, { method: 'POST', body: fd });
+          const text = await res.text();
+          if (res.ok) {
+            status.textContent = text || 'Message envoyé, merci !';
+            form.reset();
+          } else {
+            status.textContent = text || 'Désolé, une erreur est survenue.';
+          }
+        } catch (err) {
+          status.textContent = 'Connexion impossible. Réessayez.';
+        }
+      }, { passive: false });
+    })();
+  </script>
+</body>
+</html>

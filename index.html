@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ImmoChezSoi — Immobilier d'exception</title>
+
+  <!-- Typographies -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Thème premium -->
+  <link rel="stylesheet" href="theme-junot.css">
+
+  <!-- Leaflet CSS (carte gratuite) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tG2G2zFE8D1J9x4x0h38=" crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+
+  <style>
+    /* mini-ajouts */
+    .results-info{max-width:1200px;margin:10px auto 0;padding:0 20px;color:var(--muted)}
+    .empty-state{color:var(--muted);text-align:center;padding:24px}
+    .media.is-empty{background:#f3f3f3;display:grid;place-items:center;color:#999;padding-top:62%}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <button class="menu-btn" aria-label="Ouvrir le menu">☰</button>
+    <a class="brand" href="#">ImmoChezSoi</a>
+    <nav class="nav-links">
+      <a href="#" data-nav="acheter">Acheter</a>
+      <a href="#" data-nav="louer">Louer</a>
+      <a href="contact.html">Contact</a>
+      <a href="connexion.php">Connexion</a>
+    </nav>
+  </header>
+
+  <!-- Hero + barre de recherche -->
+  <section class="hero" role="banner" aria-label="Immobilier d'exception">
+    <div class="hero-media" style="background-image:url('https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop');"></div>
+
+    <div class="hero-search">
+      <div class="search-tabs" role="tablist">
+        <button class="tab active" data-mode="acheter" role="tab" aria-selected="true">ACHETER</button>
+        <button class="tab" data-mode="louer" role="tab" aria-selected="false">LOUER</button>
+        <button class="tab" data-mode="vendre" role="tab" aria-selected="false">VENDRE</button>
+      </div>
+
+      <form class="search-bar" id="search-form" onsubmit="return false;">
+        <!-- NOUVEAU : choix Acheter/Louer dans la barre -->
+        <div class="field">
+          <label class="select">
+            <select id="deal-filter" aria-label="Type d'opération">
+              <option value="">Acheter ou louer</option>
+              <option value="acheter" selected>Acheter</option>
+              <option value="louer">Louer</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field icon-left">
+          <span class="icon">📍</span>
+          <input type="text" id="address-input" placeholder="Où ?" aria-label="Adresse ou quartier">
+        </div>
+
+        <div class="field">
+          <label class="select">
+            <select id="price-filter" aria-label="Prix maximum">
+              <option value="">Prix maximum</option>
+              <option value="250000">≤ 250 000</option>
+              <option value="500000">≤ 500 000</option>
+              <option value="1000000">≤ 1 000 000</option>
+              <option value="2000000">≤ 2 000 000</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="select">
+            <select id="rooms-filter" aria-label="Nombre de pièces">
+              <option value="">Pièces</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="select">
+            <select id="type-filter" aria-label="Type de bien">
+              <option value="">Type de biens</option>
+              <option value="Appartement">Appartement</option>
+              <option value="Villa">Villa</option>
+              <option value="Bureau">Bureau</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- BOUTON RECHERCHER VISBLE -->
+        <button id="btn-search" class="cta" type="submit" aria-label="Lancer la recherche">Rechercher</button>
+
+        <!-- conservé pour compat onglets/JS -->
+        <input type="hidden" id="mode" value="acheter">
+      </form>
+    </div>
+  </section>
+
+  <!-- Intro + Listing -->
+  <main>
+    <section class="intro">
+      <h1>Révéler l'immobilier d'exception</h1>
+      <p>Découvrez une sélection confidentielle de biens à Abidjan. Expertise, élégance et service sur-mesure.</p>
+    </section>
+
+    <section class="maison-intro" aria-label="Notre maison à Abidjan">
+      <div class="maison-inner">
+        <p>
+          Maison ivoirienne dédiée aux biens de caractère, ImmoChezSoi accompagne ses clients à Abidjan
+          et dans toute la Côte d’Ivoire, avec une connaissance fine des quartiers — Cocody, Plateau,
+          Zone 4, Marcory, Riviera, Bingerville… Chaque projet bénéficie d’un suivi sur-mesure
+          alliant exigence, discrétion et sens du détail.
+        </p>
+        <p>
+          Que vous souhaitiez vendre, louer ou investir, nous valorisons votre patrimoine avec des
+          outils modernes, des visuels soignés et un réseau de confiance — en local comme au sein de
+          la diaspora. Notre ambition : transformer chaque adresse en une expérience unique,
+          simple et sereine.
+        </p>
+        <div class="maison-divider" role="presentation"></div>
+        <a class="maison-cta" href="contact.html">Découvrir la maison ImmoChezSoi</a>
+      </div>
+    </section>
+
+    <section class="listing" aria-label="Nos biens d'exception">
+      <h2>Nos biens d'exception</h2>
+      <div id="results-info" class="results-info"></div>
+      <div id="cards" class="cards"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2025 ImmoChezSoi — Abidjan | <a href="contact.html">Contact</a></p>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+  <!-- Script carte + recherche -->
+  <script src="script-leaflet.js"></script>
+
+  <script>
+    /* ========= util ========= */
+    function norm(s){ return (s||'').toString().toLowerCase().trim(); }
+    function getAllProperties(){
+      try { return JSON.parse(localStorage.getItem('properties') || '[]'); } catch(e){ return []; }
+    }
+
+    // Migration : anciens biens sans "deal" -> 'acheter'
+    (function ensureDeal(){
+      let arr=[];
+      try{ arr = JSON.parse(localStorage.getItem('properties')||'[]'); }catch(e){}
+      let changed=false;
+      arr.forEach(p=>{ if(!p.deal){ p.deal='acheter'; changed=true; }});
+      if (changed) localStorage.setItem('properties', JSON.stringify(arr));
+    })();
+
+    /* ========= rendu des cartes ========= */
+    function renderCards(list){
+      const wrap = document.getElementById('cards');
+      const info = document.getElementById('results-info');
+      wrap.innerHTML = '';
+      info.textContent = list.length ? `${list.length} résultat(s)` : '';
+
+      if (!list.length){
+        wrap.innerHTML = '<div class="empty-state">Aucun bien ne correspond à vos critères.</div>';
+        return;
+      }
+
+      list.slice(0, 30).forEach(p=>{
+        const price = new Intl.NumberFormat('fr-FR').format(+p.price || 0) + ' FCFA';
+        const rooms = p.rooms ? (p.rooms + ' pièces • ') : '';
+        const type  = p.type || 'Bien';
+        const img   = p.photoUrl || '';
+
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="media${img?'':' is-empty'}" style="${img?`background-image:url('${img}')`:''}"></div>
+          <div class="body">
+            <span class="badge">${type}</span>
+            <h3>${p.title || 'Bien immobilier'}</h3>
+            <p class="muted">${rooms}${p.address || ''}</p>
+            <div class="meta">
+              <strong>${price}</strong>
+              <button class="btn-outline" data-address="${p.address||''}">Voir l’adresse</button>
+            </div>
+          </div>`;
+        wrap.appendChild(card);
+      });
+
+      // “Voir l’adresse” → ouvre Google Maps
+      wrap.onclick = (e)=>{
+        const btn = e.target.closest('.btn-outline');
+        if (!btn) return;
+        const q = btn.getAttribute('data-address') || '';
+        if (!q) return;
+        window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q), '_blank');
+      };
+    }
+
+    /* ========= filtres ========= */
+    function applyFilters(){
+      const all = getAllProperties();
+
+      // priorité au select "deal-filter", sinon #mode (onglets)
+      const modeSel = (document.getElementById('deal-filter')?.value || '').trim();
+      const mode    = (modeSel || document.getElementById('mode')?.value || '').trim(); // acheter | louer | vendre
+
+      const priceMax = document.getElementById('price-filter')?.value || '';
+      const type     = document.getElementById('type-filter')?.value || '';
+      const roomsMin = document.getElementById('rooms-filter')?.value || '';
+      const q        = norm(document.getElementById('address-input')?.value || '');
+
+      const filtered = all.filter(p=>{
+        const okMode = !mode || !p.deal || p.deal === mode;
+        const okPrice = !priceMax || (+p.price <= +priceMax);
+        const okType  = !type || (p.type === type);
+        const okRooms = !roomsMin || (+p.rooms || 0) >= (+roomsMin);
+        const hay     = norm([p.address, p.title, p.type].filter(Boolean).join(' '));
+        const okQ     = !q || hay.includes(q);
+        return okMode && okPrice && okType && okRooms && okQ;
+      }).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+      renderCards(filtered);
+    }
+
+    /* ========= onglets & synchronisation avec le select ========= */
+    document.addEventListener('click', (e) => {
+      const t = e.target.closest('.tab');
+      if (!t) return;
+      document.querySelectorAll('.tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false') });
+      t.classList.add('active'); t.setAttribute('aria-selected','true');
+
+      // maj hidden + select
+      const newMode = t.dataset.mode;
+      document.getElementById('mode').value = newMode;
+      const dealSel = document.getElementById('deal-filter');
+      if (dealSel){
+        dealSel.value = (newMode === 'acheter' || newMode === 'louer') ? newMode : '';
+      }
+
+      applyFilters();
+      if (window.searchAndRender) window.searchAndRender();
+      document.querySelector('.listing')?.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    // Liens nav “Acheter / Louer” du header => déclenchent l’onglet correspondant
+    document.querySelectorAll('.nav-links a[data-nav]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const target = a.getAttribute('data-nav'); // acheter | louer
+        const tab = document.querySelector(`.tab[data-mode="${target}"]`);
+        if (tab) tab.click();
+      });
+    });
+
+    /* ========= init ========= */
+    document.addEventListener('error', function(e){
+      if (e.target && e.target.tagName === 'IMG') e.target.remove();
+    }, true);
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // sync initial : select -> hidden + onglet
+      const dealSel = document.getElementById('deal-filter');
+      if (dealSel){
+        document.getElementById('mode').value = dealSel.value || 'acheter';
+        const tab = document.querySelector(`.tab[data-mode="${dealSel.value||'acheter'}"]`);
+        if (tab){ tab.classList.add('active'); tab.setAttribute('aria-selected','true'); }
+      }
+
+      applyFilters(); // affichage initial
+
+      // BOUTON RECHERCHER
+      const form = document.getElementById('search-form');
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        applyFilters();
+        if (window.searchAndRender) window.searchAndRender();
+      });
+
+      const btn = document.getElementById('btn-search');
+      if (btn) btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        applyFilters();
+        if (window.searchAndRender) window.searchAndRender();
+      });
+
+      // Enter dans le champ adresse
+      document.getElementById('address-input')?.addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter'){ e.preventDefault(); applyFilters(); if (window.searchAndRender) window.searchAndRender(); }
+      });
+
+      // changement du select Acheter/Louer
+      dealSel?.addEventListener('change', ()=>{
+        const val = dealSel.value;
+        document.getElementById('mode').value = val || 'acheter';
+        // Met à jour l’onglet visuel
+        document.querySelectorAll('.tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false') });
+        const t = document.querySelector(`.tab[data-mode="${val||'acheter'}"]`);
+        if (t){ t.classList.add('active'); t.setAttribute('aria-selected','true'); }
+        applyFilters();
+        if (window.searchAndRender) window.searchAndRender();
+      });
+    });
+  </script>
+</body>
+</html>

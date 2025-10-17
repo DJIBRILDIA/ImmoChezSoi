@@ -1,0 +1,395 @@
+/* Global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.main-header {
+    background-color: #f26440;
+    padding: 20px;
+    text-align: center;
+}
+
+.menu {
+    margin-top: 10px;
+}
+
+.menu a {
+    color: #fff;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.admin-section {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+h2, h3 {
+    text-align: center;
+}
+
+form {
+    display: grid;
+    grid-gap: 10px;
+}
+
+input, select, button {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+}
+
+button {
+    background-color: #f26440;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #d9534f;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+img {
+    max-width: 100px;
+    height: auto;
+}
+
+/* Formulaire de contact */
+.contact-form {
+    background-color: white;
+    padding: 30px;
+    margin: 40px auto;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.contact-form h2 {
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #333;
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* Bouton de soumission */
+.submit-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #555;
+}
+
+
+/* Style pour le slider */
+.slider {
+    width: 100%; /* Prend toute la largeur disponible */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Chaque slide */
+.slider .slide {
+    position: relative;
+    width: 100%; /* Chaque slide prend toute la largeur */
+    height: 500px; /* Hauteur fixe pour le slider */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style des images */
+.slider .slide img {
+    width: 100%; /* L'image prend toute la largeur de la slide */
+    height: 100%; /* Remplit toute la hauteur de la slide */
+    object-fit: cover; /* S'assure que l'image couvre toute la slide sans distorsion */
+}
+
+/* Style de l'overlay */
+.slider .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5); /* Overlay semi-transparent */
+    color: white;
+}
+
+/* Pour rendre le slider responsive */
+@media (max-width: 768px) {
+    .slider .slide {
+        height: 300px; /* Réduire la hauteur sur les petits écrans */
+    }
+}
+
+/*about*/
+.about {
+    display: flex; /* Aligner l'image et le contenu côte à côte */
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Style pour l'image */
+.about .image img {
+    max-width: 100%; /* S'assurer que l'image prend toute la largeur de son conteneur */
+    height: auto; /* Conserver le ratio d'aspect */
+    display: block; /* Supprimer les marges internes supplémentaires */
+}
+
+/* Style pour le contenu */
+.about .content {
+    max-width: 600px; /* Limiter la largeur du contenu */
+    padding-left: 20px;
+}
+
+/* S'assurer que le conteneur de l'image ne limite pas l'image */
+.about .image {
+    flex-shrink: 0; /* Empêcher l'image de rétrécir */
+    max-width: 400px; /* Définir une largeur maximale pour le conteneur de l'image */
+}
+
+/* Ajustements pour le responsive (adaptation aux petits écrans) */
+@media (max-width: 768px) {
+    .about {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .about .image, .about .content {
+        max-width: 100%;
+    }
+
+    .about .content {
+        padding-left: 0;
+    }
+}
+
+/* Barre de recherche */
+.search-section {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#autocomplete, #price-filter, #type-filter {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 200px;
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    background-color: #f26440;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #e03d2b;
+}
+
+#map {
+    width: 100%;
+    height: 500px;
+}
+
+
+/* Login */
+.login-section {
+    width: 100%;
+    max-width: 400px;
+    margin: 100px auto;
+    text-align: center;
+}
+
+.login-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#username, #password {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #f26440;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #e03d2b;
+}
+
+
+/* Properties */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.properties-section {
+    padding: 20px;
+}
+
+.property-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.property {
+    width: 30%;
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.property:hover {
+    transform: scale(1.05);
+}
+
+.property img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+#map {
+    margin-top: 20px;
+}
+
+
+/* Footer */
+footer {
+    background-color: #111;
+    color: #fff;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.footer-content {
+    margin-bottom: 30px;
+}
+
+.footer-bottom p {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.socials {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.socials li {
+    margin: 0 10px;
+}
+
+.socials a {
+    color: #fff;
+    font-size: 20px;
+}
+
+.socials a:hover {
+    color: #f26440;
+}
