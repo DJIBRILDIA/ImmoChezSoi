@@ -5,41 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ImmoChezSoi — Immobilier d'exception</title>
 
-  <!-- Typographies -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Thème premium -->
   <link rel="stylesheet" href="theme-junot.css">
 
-  <!-- Leaflet CSS (carte gratuite) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tG2G2zFE8D1J9x4x0h38=" crossorigin=""/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
 
   <style>
-    /* mini-ajouts */
     .results-info{max-width:1200px;margin:10px auto 0;padding:0 20px;color:var(--muted)}
     .empty-state{color:var(--muted);text-align:center;padding:24px}
     .media.is-empty{background:#f3f3f3;display:grid;place-items:center;color:#999;padding-top:62%}
+
+    .site-header{position:sticky;top:0;z-index:1000;background:#fff}
+    .menu-btn{font-size:22px;background:none;border:0;cursor:pointer}
+
+    @media (min-width: 901px){
+      .menu-btn{display:none}
+      .nav-links{display:flex;gap:18px;align-items:center}
+    }
+    @media (max-width: 900px){
+      .nav-links{
+        position:absolute;left:12px;right:12px;top:64px;
+        display:none;flex-direction:column;gap:12px;
+        background:#fff;border:1px solid #eee;border-radius:12px;
+        padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.08)
+      }
+      .nav-links.is-open{display:flex}
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header class="site-header">
-    <button class="menu-btn" aria-label="Ouvrir le menu">☰</button>
-    <a class="brand" href="#">ImmoChezSoi</a>
-    <nav class="nav-links">
+    <button class="menu-btn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="primary-nav">☰</button>
+    <a class="brand" href="index.html">ImmoChezSoi</a>
+    <nav class="nav-links" id="primary-nav">
       <a href="#" data-nav="acheter">Acheter</a>
       <a href="#" data-nav="louer">Louer</a>
       <a href="contact.html">Contact</a>
-      <a href="connexion.php">Connexion</a>
+      <a href="connexion.html">Connexion</a>
     </nav>
   </header>
 
-  <!-- Hero + barre de recherche -->
   <section class="hero" role="banner" aria-label="Immobilier d'exception">
     <div class="hero-media" style="background-image:url('https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop');"></div>
 
@@ -51,7 +62,6 @@
       </div>
 
       <form class="search-bar" id="search-form" onsubmit="return false;">
-        <!-- NOUVEAU : choix Acheter/Louer dans la barre -->
         <div class="field">
           <label class="select">
             <select id="deal-filter" aria-label="Type d'opération">
@@ -64,19 +74,15 @@
 
         <div class="field icon-left">
           <span class="icon">📍</span>
-          <input type="text" id="address-input" placeholder="Où ?" aria-label="Adresse ou quartier">
-        </div>
-
-        <div class="field">
-          <label class="select">
-            <select id="price-filter" aria-label="Prix maximum">
-              <option value="">Prix maximum</option>
-              <option value="250000">≤ 250 000</option>
-              <option value="500000">≤ 500 000</option>
-              <option value="1000000">≤ 1 000 000</option>
-              <option value="2000000">≤ 2 000 000</option>
-            </select>
-          </label>
+          <input
+            type="text"
+            id="address-input"
+            placeholder="Où ?"
+            aria-label="Adresse ou quartier"
+            list="places-suggest"
+            autocomplete="off"
+            inputmode="text">
+          <datalist id="places-suggest"></datalist>
         </div>
 
         <div class="field">
@@ -98,20 +104,17 @@
               <option value="Appartement">Appartement</option>
               <option value="Villa">Villa</option>
               <option value="Bureau">Bureau</option>
+              <option value="Terrain nu">Terrain</option>
             </select>
           </label>
         </div>
 
-        <!-- BOUTON RECHERCHER VISBLE -->
         <button id="btn-search" class="cta" type="submit" aria-label="Lancer la recherche">Rechercher</button>
-
-        <!-- conservé pour compat onglets/JS -->
         <input type="hidden" id="mode" value="acheter">
       </form>
     </div>
   </section>
 
-  <!-- Intro + Listing -->
   <main>
     <section class="intro">
       <h1>Révéler l'immobilier d'exception</h1>
@@ -148,48 +151,39 @@
     <p>© 2025 ImmoChezSoi — Abidjan | <a href="contact.html">Contact</a></p>
   </footer>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-  <!-- Script carte + recherche -->
   <script src="script-leaflet.js"></script>
 
   <script>
-    /* ========= util ========= */
     function norm(s){ return (s||'').toString().toLowerCase().trim(); }
     function getAllProperties(){
       try { return JSON.parse(localStorage.getItem('properties') || '[]'); } catch(e){ return []; }
     }
 
-    // Migration : anciens biens sans "deal" -> 'acheter'
     (function ensureDeal(){
-      let arr=[];
-      try{ arr = JSON.parse(localStorage.getItem('properties')||'[]'); }catch(e){}
+      let arr=[]; try{ arr = JSON.parse(localStorage.getItem('properties')||'[]'); }catch(e){}
       let changed=false;
       arr.forEach(p=>{ if(!p.deal){ p.deal='acheter'; changed=true; }});
       if (changed) localStorage.setItem('properties', JSON.stringify(arr));
     })();
 
-    /* ========= rendu des cartes ========= */
     function renderCards(list){
       const wrap = document.getElementById('cards');
       const info = document.getElementById('results-info');
       wrap.innerHTML = '';
       info.textContent = list.length ? `${list.length} résultat(s)` : '';
-
       if (!list.length){
         wrap.innerHTML = '<div class="empty-state">Aucun bien ne correspond à vos critères.</div>';
         return;
       }
-
       list.slice(0, 30).forEach(p=>{
         const price = new Intl.NumberFormat('fr-FR').format(+p.price || 0) + ' FCFA';
         const rooms = p.rooms ? (p.rooms + ' pièces • ') : '';
         const type  = p.type || 'Bien';
         const img   = p.photoUrl || '';
-
         const card = document.createElement('article');
         card.className = 'card';
         card.innerHTML = `
@@ -205,8 +199,6 @@
           </div>`;
         wrap.appendChild(card);
       });
-
-      // “Voir l’adresse” → ouvre Google Maps
       wrap.onclick = (e)=>{
         const btn = e.target.closest('.btn-outline');
         if (!btn) return;
@@ -216,14 +208,10 @@
       };
     }
 
-    /* ========= filtres ========= */
     function applyFilters(){
       const all = getAllProperties();
-
-      // priorité au select "deal-filter", sinon #mode (onglets)
       const modeSel = (document.getElementById('deal-filter')?.value || '').trim();
-      const mode    = (modeSel || document.getElementById('mode')?.value || '').trim(); // acheter | louer | vendre
-
+      const mode    = (modeSel || document.getElementById('mode')?.value || '').trim();
       const priceMax = document.getElementById('price-filter')?.value || '';
       const type     = document.getElementById('type-filter')?.value || '';
       const roomsMin = document.getElementById('rooms-filter')?.value || '';
@@ -242,43 +230,36 @@
       renderCards(filtered);
     }
 
-    /* ========= onglets & synchronisation avec le select ========= */
     document.addEventListener('click', (e) => {
       const t = e.target.closest('.tab');
       if (!t) return;
       document.querySelectorAll('.tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false') });
       t.classList.add('active'); t.setAttribute('aria-selected','true');
-
-      // maj hidden + select
       const newMode = t.dataset.mode;
       document.getElementById('mode').value = newMode;
       const dealSel = document.getElementById('deal-filter');
       if (dealSel){
         dealSel.value = (newMode === 'acheter' || newMode === 'louer') ? newMode : '';
       }
-
       applyFilters();
       if (window.searchAndRender) window.searchAndRender();
       document.querySelector('.listing')?.scrollIntoView({behavior:'smooth', block:'start'});
     });
 
-    // Liens nav “Acheter / Louer” du header => déclenchent l’onglet correspondant
     document.querySelectorAll('.nav-links a[data-nav]').forEach(a=>{
       a.addEventListener('click', (e)=>{
         e.preventDefault();
-        const target = a.getAttribute('data-nav'); // acheter | louer
+        const target = a.getAttribute('data-nav');
         const tab = document.querySelector(`.tab[data-mode="${target}"]`);
         if (tab) tab.click();
       });
     });
 
-    /* ========= init ========= */
     document.addEventListener('error', function(e){
       if (e.target && e.target.tagName === 'IMG') e.target.remove();
     }, true);
 
     document.addEventListener('DOMContentLoaded', ()=>{
-      // sync initial : select -> hidden + onglet
       const dealSel = document.getElementById('deal-filter');
       if (dealSel){
         document.getElementById('mode').value = dealSel.value || 'acheter';
@@ -286,9 +267,8 @@
         if (tab){ tab.classList.add('active'); tab.setAttribute('aria-selected','true'); }
       }
 
-      applyFilters(); // affichage initial
+      applyFilters();
 
-      // BOUTON RECHERCHER
       const form = document.getElementById('search-form');
       form.addEventListener('submit', (e)=>{
         e.preventDefault();
@@ -303,23 +283,93 @@
         if (window.searchAndRender) window.searchAndRender();
       });
 
-      // Enter dans le champ adresse
       document.getElementById('address-input')?.addEventListener('keydown', (e)=>{
         if (e.key === 'Enter'){ e.preventDefault(); applyFilters(); if (window.searchAndRender) window.searchAndRender(); }
       });
 
-      // changement du select Acheter/Louer
       dealSel?.addEventListener('change', ()=>{
         const val = dealSel.value;
         document.getElementById('mode').value = val || 'acheter';
-        // Met à jour l’onglet visuel
         document.querySelectorAll('.tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false') });
         const t = document.querySelector(`.tab[data-mode="${val||'acheter'}"]`);
         if (t){ t.classList.add('active'); t.setAttribute('aria-selected','true'); }
         applyFilters();
         if (window.searchAndRender) window.searchAndRender();
       });
+
+      if (new URLSearchParams(location.search).has('bye')) {
+        alert('Vous avez été déconnecté ✅');
+      }
     });
+
+    (function(){
+      const btn = document.querySelector('.menu-btn');
+      const nav = document.getElementById('primary-nav');
+      if (!btn || !nav) return;
+      function setOpen(open){
+        nav.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', String(open));
+      }
+      btn.addEventListener('click', () => {
+        const open = nav.classList.contains('is-open');
+        setOpen(!open);
+      });
+      nav.addEventListener('click', (e) => { if (e.target.tagName === 'A') setOpen(false); });
+      window.addEventListener('resize', () => { if (window.innerWidth > 900) setOpen(false); });
+      document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target) && e.target !== btn) setOpen(false);
+      });
+    })();
+  </script>
+
+  <!-- Suggestions d’adresses à partir des biens enregistrés (sécurisé) -->
+  <script>
+    (function(){
+      var KEY = 'properties';
+      var input = document.getElementById('address-input');
+      var dl = document.getElementById('places-suggest');
+      if (!input || !dl) return;
+
+      function readProps(){
+        try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+        catch(e){ return []; }
+      }
+      function unique(arr){
+        var s = new Set();
+        arr.forEach(function(v){ if(v && v.trim()) s.add(v.trim()); });
+        return Array.from(s);
+      }
+      function buildPool(){
+        var props = readProps();
+        var pool = [];
+        props.forEach(function(p){
+          if (p.address) pool.push(p.address);
+          if (p.title)   pool.push(p.title);
+          if (p.address && p.address.includes(',')) {
+            p.address.split(',').forEach(function(part){ pool.push(part); });
+          }
+        });
+        return unique(pool);
+      }
+
+      var all = buildPool();
+      function refreshOptions(q){
+        var qn = (q||'').toLowerCase();
+        var list = all.filter(function(v){ return v.toLowerCase().includes(qn); }).slice(0, 12);
+        dl.innerHTML = '';
+        list.forEach(function(v){
+          var opt = document.createElement('option');
+          opt.value = v;
+          dl.appendChild(opt);
+        });
+      }
+
+      refreshOptions('');
+      input.addEventListener('input', function(){ refreshOptions(input.value); });
+      window.addEventListener('storage', function(e){
+        if (e.key === KEY) { all = buildPool(); refreshOptions(input.value); }
+      });
+    })();
   </script>
 </body>
 </html>

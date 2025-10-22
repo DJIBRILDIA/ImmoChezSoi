@@ -1,12 +1,76 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Redirection…</title>
-  <meta http-equiv="refresh" content="0; url=connexion.php">
-  <script>location.replace('connexion.php');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — ImmoChezSoi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f6f5f3;--paper:#fff;--ink:#1d1d1f;--muted:#6e6e73;--shadow:0 18px 50px rgba(0,0,0,.08)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .card{width:min(420px,92%);background:var(--paper);border-radius:14px;box-shadow:var(--shadow);padding:22px 20px}
+    h1{margin:6px 0 16px;font-size:22px}
+    label{display:block;font-weight:600;margin:10px 0 6px}
+    input{width:100%;border:1px solid #ddd;border-radius:10px;padding:12px;font-size:16px}
+    .cta{margin-top:14px;width:100%;border:0;border-radius:10px;background:#222;color:#fff;padding:12px 14px;font-weight:700;cursor:pointer}
+    .msg{margin-top:10px;color:var(--muted);min-height:1.2em;text-align:center}
+    .brand{display:block;text-align:center;margin-bottom:8px;text-decoration:none;color:inherit;font-weight:700}
+  </style>
 </head>
 <body>
-  <p>Redirection vers la page de connexion… <a href="connexion.php">Cliquer ici</a>.</p>
+  <div class="wrap">
+    <form class="card" id="login-form" autocomplete="on" novalidate>
+      <a class="brand" href="index.html">ImmoChezSoi</a>
+      <h1>Connexion</h1>
+
+      <label for="username">Nom d’utilisateur</label>
+      <input id="username" name="username" type="text" required autocomplete="username" placeholder="Votre identifiant">
+
+      <label for="password">Mot de passe</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Votre mot de passe">
+
+      <button class="cta" type="submit">Se connecter</button>
+      <div class="msg" id="msg"></div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded",function(){
+      var form=document.getElementById("login-form");
+      var msg=document.getElementById("msg");
+      if(!form)return;
+
+      function setMsg(t){ if(msg) msg.textContent=t||""; }
+
+      var p=new URLSearchParams(location.search);
+      if(p.get("err")) setMsg(p.get("err"));
+      if(p.get("ok")) setMsg(p.get("ok"));
+
+      form.addEventListener("submit",function(e){
+        e.preventDefault();
+        setMsg("");
+
+        var username=(form.username.value||"").trim();
+        var password=(form.password.value||"").trim();
+        if(!username||!password){ setMsg("Veuillez entrer vos identifiants."); return; }
+
+        var adminUser="admin";
+        var adminPass="1234";
+
+        if(username===adminUser&&password===adminPass){
+          var payload={sub:username,exp:(Date.now()/1000)+3600};
+          var token=btoa(JSON.stringify(payload));
+          document.cookie="icss="+token+"; Path=/; SameSite=Lax";
+          location.replace("admin.html");
+        }else{
+          setMsg("Nom d’utilisateur ou mot de passe invalide.");
+        }
+      });
+    });
+  </script>
 </body>
 </html>
