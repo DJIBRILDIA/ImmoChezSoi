@@ -393,3 +393,28 @@ footer {
 .socials a:hover {
     color: #f26440;
 }
+
+/* Adaptation de la barre de recherche sur mobile */
+@media (max-width: 768px) {
+
+    /* les éléments de la barre passent en colonne */
+    .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* chaque champ prend toute la largeur disponible */
+    .search-bar input,
+    .search-bar select,
+    .search-bar button {
+        width: 100%;
+    }
+
+    /* on force l’input du milieu à ne plus être figé à 200px */
+    #autocomplete, 
+    #price-filter, 
+    #type-filter {
+        width: 100%;
+        max-width: 100%;
+    }
+}
